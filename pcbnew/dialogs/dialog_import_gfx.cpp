@@ -170,6 +170,30 @@ void DIALOG_IMPORT_GFX::OnBrowseFiles( wxCommandEvent& event )
 
     m_filename = fileName;
     m_textCtrlFileName->SetValue( fileName );
+
+    auto plugin = GRAPHICS_IMPORT_MGR::GetPluginByExt( wxFileName( m_filename ).GetExt() );
+
+    if( plugin )
+    {
+        //m_importer->SetLineWidth();   // @todo add a setting in the dialog and apply it here
+
+        m_importer->SetPlugin( std::move( plugin ) );
+
+        m_importer->Load( m_filename );
+
+        m_tcHeight->SetValue( StringFromValue(StringFromValue(, m_importer->GetImageHeight()));
+        m_tcWidth->SetValue( StringFromValue(m_importer->GetImageWidth()));
+
+        //m_importer->SetScale();       // @todo
+
+        //m_importer->Import( 1.f, 1.f );  // @todo
+        EndModal( wxID_OK );
+    }
+    else
+    {
+        DisplayError( this, _( "There is no plugin to handle this file type" ) );
+    }
+
 }
 
 
@@ -218,24 +242,6 @@ void DIALOG_IMPORT_GFX::OnOKClick( wxCommandEvent& event )
     //m_importer.SetOffset( offsetX, offsetY );
     m_layer = m_SelLayerBox->GetLayerSelection();
     m_importer->SetLayer( LAYER_ID( m_layer ) );
-    auto plugin = GRAPHICS_IMPORT_MGR::GetPluginByExt( wxFileName( m_filename ).GetExt() );
-
-    if( plugin )
-    {
-        //m_importer->SetLineWidth();   // @todo add a setting in the dialog and apply it here
-
-        m_importer->SetPlugin( std::move( plugin ) );
-
-        //m_importer->SetScale();       // @todo
-
-        m_importer->Load( m_filename );
-        //m_importer->Import( 1.f, 1.f );  // @todo
-        EndModal( wxID_OK );
-    }
-    else
-    {
-        DisplayError( this, _( "There is no plugin to handle this file type" ) );
-    }
 }
 
 void DIALOG_IMPORT_GFX::onChangeHeight( wxUpdateUIEvent &event)

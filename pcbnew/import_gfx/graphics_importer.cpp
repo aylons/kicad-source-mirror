@@ -41,7 +41,15 @@ bool GRAPHICS_IMPORTER::Load( const wxString &aFileName )
         return false;
     }
 
-    return m_plugin->Load( aFileName );
+    if( !m_plugin->Load( aFileName ) )
+    {
+        return false;
+    }
+
+    m_originalWidth = m_plugin->GetImageWidth();
+    m_originalHeight = m_plugin->GetImageHeight();
+
+    return true;
 }
 
 bool GRAPHICS_IMPORTER::Import( float aXScale, float aYScale)
